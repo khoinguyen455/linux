@@ -103,26 +103,26 @@ install_dependencies() {
 
 echo -e "${CYAN}[*] Checking dependencies...${RESET}"
 
-if ! command -v wget >/dev/null 2>&1; then
+# if ! command -v wget >/dev/null 2>&1; then
 
-    echo -e "${YELLOW}[*] Installing required packages...${RESET}"
+#     echo -e "${YELLOW}[*] Installing required packages...${RESET}"
 
-    if command -v apt >/dev/null 2>&1; then
-        apt update -y
-        apt install wget curl tar xz-utils proot git -y
+#     if command -v apt >/dev/null 2>&1; then
+#         apt update -y
+#         apt install wget curl tar xz-utils proot git -y
 
-    elif command -v apk >/dev/null 2>&1; then
-        apk add wget curl tar xz proot git
+#     elif command -v apk >/dev/null 2>&1; then
+#         apk add wget curl tar xz proot git
 
-    elif command -v yum >/dev/null 2>&1; then
-        yum install wget curl tar xz proot git -y
+#     elif command -v yum >/dev/null 2>&1; then
+#         yum install wget curl tar xz proot git -y
 
-    else
-        echo -e "${RED}[ERROR] Unsupported package manager.${RESET}"
-        exit 1
-    fi
-fi
-}
+#     else
+#         echo -e "${RED}[ERROR] Unsupported package manager.${RESET}"
+#         exit 1
+#     fi
+# fi
+# }
 
 ############################
 # INSTALL UBUNTU ROOTFS
@@ -134,13 +134,8 @@ UBUNTU_URL="https://cdimage.ubuntu.com/ubuntu-base/releases/22.04/release/ubuntu
 
 echo -e "${CYAN}[*] Downloading Ubuntu 22.04 RootFS...${RESET}"
 
-wget \
---tries="$MAX_RETRIES" \
---timeout="$TIMEOUT" \
---show-progress \
---no-hsts \
--O /tmp/rootfs.tar.gz \
-"$UBUNTU_URL"
+curl -fL --retry "$MAX_RETRIES" --connect-timeout "$TIMEOUT" \
+     -o /tmp/rootfs.tar.gz "$UBUNTU_URL"
 
 if [ ! -f /tmp/rootfs.tar.gz ]; then
     echo -e "${RED}[ERROR] Failed to download Ubuntu RootFS.${RESET}"
@@ -169,14 +164,9 @@ mkdir -p "$ROOTFS_DIR/usr/local/bin"
 
 echo -e "${CYAN}[*] Downloading PRoot binary...${RESET}"
 
-wget \
---tries="$MAX_RETRIES" \
---timeout="$TIMEOUT" \
---show-progress \
---no-hsts \
--O "$ROOTFS_DIR/usr/local/bin/proot" \
-"https://proot.gitlab.io/proot/bin/proot"
-
+curl -fL --retry "$MAX_RETRIES" --connect-timeout "$TIMEOUT" \
+     -o "$ROOTFS_DIR/usr/local/bin/proot" \
+     "https://proot.gitlab.io/proot/bin/proot"
 chmod +x "$ROOTFS_DIR/usr/local/bin/proot"
 }
 
